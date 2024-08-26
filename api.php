@@ -4,66 +4,66 @@
 
     $metodo = $_SERVER['REQUEST_METHOD'];
     $url = $_SERVER['REQUEST_URI'];
-
     $path = parse_url($url, PHP_URL_PATH);
     $path = trim($path,'/');
     $pathparts = explode('/',$path);
-
-    //CRIANDO AS VARIAVEIS PARA CADA PARTE DA URL
 
     $primeira = isset($pathparts[0]) ? $pathparts[0] : ''; 
     $segunda = isset($pathparts[1]) ? $pathparts[1] : '';
     $terceira = isset($pathparts[2]) ? $pathparts[2] : '';
     $quarta = isset($pathparts[3]) ? $pathparts[3] : '';
 
-    //MONTANDO A RESPOSTA DA API EM JSON
-
     $response = [
         'metodo' => $metodo,
-        'primeiraParte' => $primeira,
-        'segundaParte' => $segunda,
-        'terceiraParte' => $terceira,
-        'quartaParte' => $quarta
+        'primeiraparte' => $primeira,
+        'segundaparte' => $segunda,
+        'terceiraparte' => $terceira,
+        'quartaparte' => $quarta
     ];
 
-    //SELEÇÃO DO MÉTODO
 
     switch($metodo){
         case 'GET':
-            // lógica para GET
-            if($terceira == 'alunos' && $quarta ==''){
+            //LÓGICA PARA GET
+            if($terceiraparte == 'alunos' && $quartaparte ==''){
                 lista_alunos();
             }
-            elseif($terceira == 'alunos' && $quarta !=''){
-                lista_um_aluno($quarta);
+            elseif($terceiraparte == 'alunos' && $quartaparte !=''){
+                lista_um_aluno($quartaparte);
             }
-            elseif($terceira == 'cursos' && $quarta == ''){
+            elseif($terceiraparte == 'cursos' && $quartaparte == ''){
                 lista_cursos();
-                // echo json_encode(
-                //     [
-                //         'mensagem' => 'LISTA TODOS OS CURSOS!'
-                //     ]
-                // );
             }
-            elseif($terceira == 'cursos' && $quarta !=''){
-                lista_um_curso($quarta);
-                // echo json_encode(
-                //     [
-                //         'mensagem' => 'LISTA DE UM CURSO!',
-                //         'id_curso' => $quarta
-                //     ]
-                // );
+            elseif($terceiraparte == 'cursos' && $quartaparte !=''){
+                lista_um_curso($quartaparte);
             }
-            
             break;
         case 'POST':
-            //lógica para POST
+            //LÓGICA PARA POST
+            if ($terceiraparte == 'alunos'){
+                insere_aluno();
+            }
+            elseif ($terceiraparte == 'cursos'){
+                insere_curso();
+            }
             break;
         case 'PUT':
-            //lógica para PUT
+            //LÓGICA PARA PUT
+            if ($terceiraparte == 'alunos'){
+                atualiza_alunos();
+            }
+            elseif ($terceiraparte == 'cursos') {
+                atualiza_curso();
+            }
             break;
         case 'DELETE':
-            //lógica para o DELETE
+            //LÓGICA PARA DELETE
+            if ($terceiraparte == 'alunos'){
+                remove_aluno();
+            }
+            elseif ($terceiraparte == 'cursos') {
+                remove_curso();
+            }
             break;
         default:
             echo json_encode(
@@ -126,13 +126,52 @@
         );
     }
 
-    function lista_um_curso($quarta){
+    function lista_um_curso($quartaparte){
         global $conexao;
         $stmt = $conexao->prepare("SELECT * FROM cursos WHERE id_curso = ?");
         $stmt->bind_param('i',$quarta);
         $stmt->execute();
         $resultado = $stmt->get_result();
         $curso = $resultado->fetch_assoc();
+
+        echo json_encode([
+            'mensagem' => 'LISTA DE UM CURSO',
+            'dados_aluno' => $curso
+        ]);
+    }
+
+
+    function insere_curso(){
+        global $conexao;
+        //OPCAO 1 COM JSON
+        // $input = json_decode(file_get_contents('php://input'), true);
+        // $nome_curso = $input['nome_curso'];
+
+        //OPCAO 2 COM PARAMETROS
+        $nome_curso = $_GET['nome_curso'];
+
+        $sql = "INSERT INTO cursos (nome_curso) VALUES ('$nome_curso')";
+
+        if($conexao->query($sql) == TRUE){
+            echo json_encode([
+                'mensagem' => 'CURSO CADASTRADO COM SUCESO'
+            ]);
+        }
+        else {
+            echo json_encode([
+                'mensagem' => 'ERRO NO CADASTRO DO CURSO'
+            ]);
+        }
+    }
+
+
+
+
+
+
+
+
+
 
         if($curso == ''){
             echo json_encode(
