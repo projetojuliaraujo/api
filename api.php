@@ -164,32 +164,77 @@
         }
     }
 
+    function insere_aluno(){
+        global $conexao;
+        //Para inserir um aluno é obrigatório que haja um curso desejado já cadastrado!
+        //Neste exemplo vamos passar os parâmetros via JSON
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id_curso = $input['fk_cursos_id_curso'];
+        $nome = $input['nome'];
+        $email = $input['email'];
 
-
-
-
-
-
-
-
-
-        if($curso == ''){
-            echo json_encode(
-                [
-                    'mensagem' => 'NÃO FOI ENCONTRADO O CURSO ACIMA!'
-                ]
-            );
-        }else{
-            echo json_encode(
-                [
-                    'mensagem' => 'LISTA DE UM CURSO!',
-                    'dados_curso' => $curso
-                ]
-            );
+        $sql = "INSERT INTO alunos (nome,email,fk_cursos_id_curso) VALUES ('$nome','$email','$id_curso')";
+        
+        if($conexao->query($sql) == TRUE){
+            echo json_encode([
+                'mensagem' => 'ALUNO CADASTRADO COM SUCESSO'
+            ]);
+        }
+        else {
+            echo json_encode([
+                'mensagem' => 'ERRO NO CADASTRO DO ALUNO'
+            ]);
         }
 
-        
+    }
+
+    function atualiza_aluno(){
+        global $conexao;
+        //Para atualizar um aluno é obrigatório o envio do ID do aluno
+        //Precisa enviar todos os dados que serem atualizados (nome, email, curso, etc)
+        //Aqui pode ser pensada vários tipos de lógica, como por exemplo se somente um destes campos vierem preenchidos.
+        //Neste exemplo o único campo que não iremos alterar será o curso.
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id = $input['id'];
+        $nome_novo = $input['nome_novo'];
+        $email_novo = $input['email_novo'];
+
+        $sql = "UPDATE alunos SET nome = '$nome_novo', email = '$email_novo' WHERE id = '$id'";
+
+        if($conexao->query($sql) == TRUE){
+            echo json_encode([
+                'mensagem' => 'ALUNO ATUALIZADO COM SUCESSO'
+            ]);
+        }
+        else {
+            echo json_encode([
+                'mensagem' => 'ERRO ATUALIZAÇÃO DO ALUNO'
+            ]);
+        }
+    }
+
+    function atualiza_curso(){
+        global $conexao;
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id_curso = $input['id_curso'];
+        $nome_curso_novo = $input['nome_curso_novo'];
+
+        $sql = "UPDATE cursos SET nome_curso = '$nome_curso_novo' WHERE id_curso = '$id_curso'";
+
+        if($conexao->query($sql) == TRUE){
+            
+        }
     }
 
 
-?>
+
+
+
+
+
+
+
+
+        
